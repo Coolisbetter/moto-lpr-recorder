@@ -12,6 +12,13 @@ To receive data of the plates, the script connects to ports in the 5000 range. 5
 To test the data port, you can use `nc -v XX.XX.XX.XX 5001` on a linux system. If it is responding, you should see a connection successful message, followed by a bunch of binary data as cars pass by the camera. 
 
 ## Using the script
-Edit the IP and port at the bottom of the script to match the system you wish to connect to. Then run the script from your terminal. 
+1. Create a file named `ips.txt`, fill it with the IPs of the cameras you want to record from, one IP per line.
+1. Edit the variables in the main at the bottom of the script to your liking.
+1. If you're outputting to MySQL; Create a `.env` environment file and assign values to the variables: `mysql_host,mysql_user,mysql_db,mysql_pass`
 
-Data from the plates will be appended to `output.csv`, and images of the plates will be placed in `images/YYYY-MM-DD/*.jpg`.
+If using CSV output; Data from the plates will be appended to `output.csv`
+If saving images; Images of the plates will be placed in `images/YYYY-MM-DD/*.jpg`
+If dumping BINs; Bin files will be placed in `bins/YYYY-MM-DD/*.jpg`
+
+## Current Limitations
+Currently the CSV output won't work if you're recording more than 1 IP, as the file access is not thread-safe.
