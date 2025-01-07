@@ -15,6 +15,3 @@ To test the data port, you can use `nc -v XX.XX.XX.XX 5001` on a linux system. I
 Edit the IP and port at the bottom of the script to match the system you wish to connect to. Then run the script from your terminal. 
 
 Data from the plates will be appended to `output.csv`, and images of the plates will be placed in `images/YYYY-MM-DD/*.jpg`.
-
-## Known Limitations
-If more than one car is processed within 1 second, both cars will have the same timestamp and the image will be overwritten. A better system for co-relating output lines and images is needed.
