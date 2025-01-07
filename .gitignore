@@ -1,3 +1,6 @@
 ﻿bins
 images
 output.csv
+.vscode
+*.env
+ips.txt
