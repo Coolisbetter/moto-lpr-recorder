@@ -46,7 +46,7 @@ def search_bytes(data, pattern):
             return i
     return -1
 
-def extract_jpg_image(binary_data, timestamp):
+def extract_jpg_image(binary_data, timestamp, plate):
     jpg_byte_start = b'\xff\xd8'
     jpg_byte_end = b'\xff\xd9'
     jpg_image = bytearray()
@@ -64,7 +64,7 @@ def extract_jpg_image(binary_data, timestamp):
     folder_path = os.path.join('images',f'{date.today().strftime("%Y-%m-%d")}')
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
-    with open(os.path.join(folder_path,f'{timestamp}.jpg'), 'wb') as f:
+    with open(os.path.join(folder_path,f'{timestamp}-{plate}.jpg'), 'wb') as f:
         f.write(jpg_image)
 
 def saveData(hostname, binary_data):
@@ -79,6 +79,7 @@ def saveData(hostname, binary_data):
     index = search_bytes(binary_data[0:32], b'=\x00\x00\x00')
     if (index > -1):
         plate = binary_data[index+4:32].decode('utf-8')
+        plate = plate.rstrip('\x00')
 
     # JSON at end of file
     try:
@@ -101,8 +102,8 @@ def saveData(hostname, binary_data):
     
     print(timestamp+","+plate+","+makerName+","+modelName+","+colorName+","+engineTimeDelay)
     with open('output.csv', "a") as fo:
-        fo.write(timestamp+","+plate.rstrip('\x00')+","+makerName+","+modelName+","+colorName+","+engineTimeDelay+','+hostname+'\n')
-    extract_jpg_image(binary_data, timestamp)
+        fo.write(timestamp+","+plate+","+makerName+","+modelName+","+colorName+","+engineTimeDelay+','+hostname+'\n')
+    extract_jpg_image(binary_data, timestamp, plate)
     # with open (timestamp+".bin", "wb") as f:
     #     f.write(binary_data)
 
