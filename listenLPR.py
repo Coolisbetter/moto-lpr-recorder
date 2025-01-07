@@ -4,7 +4,7 @@ import re
 import os.path
 from datetime import date
 
-def listenLPR(hostname, port):
+def listenLPR(hostname, port, doSaveImg:bool = False, doDumpBin:bool = False):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:
             s.settimeout(10)
@@ -27,7 +27,7 @@ def listenLPR(hostname, port):
             if (len(data) == 4 and data == b'\xBB\x0B\x00\x00'): # Start packet
                 #print("Start Packet: "+str(data))
                 if (receiving == True): # Save existing data before starting new
-                    saveData(f"{hostname}:{port}", buffer)
+                    saveData(f"{hostname}:{port}", buffer, doSaveImg, doDumpBin)
                 receiving = True
                 buffer = data
 
@@ -37,7 +37,7 @@ def listenLPR(hostname, port):
             if (receiving == True and len(data) == 4 and data == b'\x08\x04\x00\x00'): # End / heartbeat packet
                 #print("End Packet: "+str(data))
                 receiving = False
-                saveData(f"{hostname}:{port}", buffer)
+                saveData(f"{hostname}:{port}", buffer, doSaveImg, doDumpBin)
 
 def search_bytes(data, pattern):
     """Searches for a byte pattern in binary data."""
@@ -45,6 +45,14 @@ def search_bytes(data, pattern):
         if data[i:i + len(pattern)] == pattern:
             return i
     return -1
+
+def dump_bin(binary_data, timestamp, plate):
+    folder_path = os.path.join('bins',f'{date.today().strftime("%Y-%m-%d")}')
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    with open (os.path.join(folder_path,f'{timestamp}-{plate}.bin'), "wb") as f:
+        f.write(binary_data)
 
 def extract_jpg_image(binary_data, timestamp, plate):
     jpg_byte_start = b'\xff\xd8'
@@ -67,7 +75,7 @@ def extract_jpg_image(binary_data, timestamp, plate):
     with open(os.path.join(folder_path,f'{timestamp}-{plate}.jpg'), 'wb') as f:
         f.write(jpg_image)
 
-def saveData(hostname, binary_data):
+def saveData(hostname, binary_data, doSaveImg:bool, doDumpBin:bool):
     plate = "PARSE_ERROR"
     makerName = "PARSE_ERROR"
     modelName = "PARSE_ERROR"
@@ -103,9 +111,10 @@ def saveData(hostname, binary_data):
     print(timestamp+","+plate+","+makerName+","+modelName+","+colorName+","+engineTimeDelay)
     with open('output.csv', "a") as fo:
         fo.write(timestamp+","+plate+","+makerName+","+modelName+","+colorName+","+engineTimeDelay+','+hostname+'\n')
-    extract_jpg_image(binary_data, timestamp, plate)
-    # with open (timestamp+".bin", "wb") as f:
-    #     f.write(binary_data)
+    if (doSaveImg):
+        extract_jpg_image(binary_data, timestamp, plate)
+    if (doDumpBin):
+        dump_bin(binary_data, timestamp, plate)
 
 if __name__ == "__main__":
     print("Script started")
@@ -115,5 +124,4 @@ if __name__ == "__main__":
             fo.write('timestamp,plate_number,maker_name,model_name,color_name,engine_time_delay,ip_addr\n')
         print('timestamp,plate_number,maker_name,model_name,color_name,engine_time_delay,ip_addr')
     
-    #listenLPR("152.86.30.137", 5001)
-    listenLPR("166.157.142.221", 5002)
+    listenLPR("166.157.142.221", 5002, doSaveImg=True, doDumpBin=True)
