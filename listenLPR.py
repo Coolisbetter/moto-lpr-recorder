@@ -8,6 +8,7 @@ import mysql.connector
 import logging
 import threading
 import datetime
+from dotenv import load_dotenv
 
 
 class Output(Enum):
@@ -156,6 +157,7 @@ def target(hostname, port, doSaveImg:bool = False, doDumpBin:bool = False, outpu
 
 if __name__ == "__main__":
     logging.info("Script started")
+    load_dotenv()
     with open('ips.txt', 'r') as f:
         ipArray = f.read().splitlines() 
     doSaveImg=False
