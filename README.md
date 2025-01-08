@@ -20,5 +20,9 @@ If using CSV output; Data from the plates will be appended to `output.csv`
 If saving images; Images of the plates will be placed in `images/YYYY-MM-DD/*.jpg`
 If dumping BINs; Bin files will be placed in `bins/YYYY-MM-DD/*.jpg`
 
+## Required pip packages
+- python-dotenv
+- mysql-connector-python
+
 ## Current Limitations
 Currently the CSV output won't work if you're recording more than 1 IP, as the file access is not thread-safe.
